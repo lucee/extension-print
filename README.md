@@ -6,6 +6,8 @@ Provides CFML print tags and functions for Lucee
 
 Basic compatibility with the Adobe implementation (which is broken in ACF 2023 and ACF 2025)
 
+Note: getPrinterList() is returns an array of printers, rather than a list, it's 2025
+
 Initial version just supports local printers
 
 # Future Plans
