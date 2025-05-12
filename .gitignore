@@ -1,0 +1,8 @@
+/dist
+**/.DS_Store
+*.DS_Store
+*.class
+target
+target/*
+temp
+temp/*
