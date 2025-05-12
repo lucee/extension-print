@@ -52,7 +52,7 @@ jobs:
         luceeVersion: ${{ env.luceeVersion }}
         luceeVersionQuery: ${{ env.luceeVersionQuery }}
         extensionDir: ${{ github.workspace }}/target
-        extensions: 6E312DD-D083-27C0-64189D16753FD6F0
+        extensions: 66E312DD-D083-27C0-64189D16753FD6F0
       env:
         testLabels: print
         testAdditional: ${{ github.workspace }}/tests
