@@ -17,22 +17,27 @@ component {
 		var attr = new HashPrintRequestAttributeSet();
 		attr.add(new JobName( listLast(arguments.source, "/\"), Locale::US ));
 		var docAttr = new HashDocAttributeSet();
-		//if ( len( arguments.color ) )
-		//	docAttr.add( arguments.color ? Chromaticity::COLOR : Chromaticity::MONOCHROME );
-	//	if ( len( arguments.copies ) )
-	//		attr.add(new Copies(arguments.copies ) );
-		//if ( len( arguments.fidelity ) )
-		//	attr.add(arguments.fidelity ? Fidelity::Fidelity_TRUE : Fidelity::Fidelity_FALSE );
-	//	if ( len( arguments.pages ) )
-	//		attr.add( getPages( arguments.pages ) );
-		//if ( len( arguments.paper ) )
-		//	attr.add( getMedia( arguments.paper ).get(nullValue()) );
+		if ( len( arguments.color ) )
+			docAttr.add( arguments.color ? Chromaticity::COLOR : Chromaticity::MONOCHROME );
+		if ( len( arguments.copies ) )
+			attr.add(new Copies( int(arguments.copies )) );
+	
+		/*
+		if ( len( arguments.fidelity ) ){
+			attr.add(Fidelity::FIDELITY_TRUE );
+		} else {
+			attr.add(Fidelity::FIDELITY_FALSE );
+		}
+		*/
+			
+		if ( len( arguments.pages ) )
+			attr.add( getPages( toString(arguments.pages) ) );
+		if ( len( arguments.paper ) )
+			attr.add( getMedia( arguments.paper ).get(nullValue()) );
 		
 
 		dumpAttr(var=attr, label="RequestAttr");
 		dumpAttr(var=docAttr, label="DocAttr");
-		var flavor = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").AUTOSENSE; // DocFlavor::INPUT_STREAM; // i.e. pdf
-		dump(flavor.toString());
 		//var services = PrintServiceLookup::lookupPrintServices( flavor, attr );
 		var PrintService = findPrinter( arguments.printer, attr );
 		/*
@@ -42,29 +47,49 @@ component {
 			dump(flavor.getMimeType());
 		}
 		*/
-		dump(PrintService);
+		//dump(PrintService);
 
 		var printJob = PrintService.createPrintJob();
 		var fis = new FileInputStream( arguments.source );
-		//dump(fis);
-		var flavor = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").AUTOSENSE;
 		
-		var doc = new SimpleDoc( fis, flavor, docAttr );
-		dump(printJob);
-		var printJobListener = new javaxPrintJobListener( logger, getPageContext() );
-		printjob.addPrintJobListener( printJobListener );
+		// seems for DocFlavor.INPUT_STREAM.AUTOSENSE docAttr isn't supported?
+		// var flavor = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").AUTOSENSE;
+		//var doc = new SimpleDoc( fis, flavor, docAttr );
+		//var doc = new SimpleDoc( fis, flavor, nullValue() ); // LDEV-5608
+		var doc = getSimpleDoc(fis, docAttr);
+		
+		//dump(doc);
+		//dump(printJob);
+		//var printJobListener = new javaxPrintJobListener( logger, getPageContext() );
+		//printjob.addPrintJobListener( printJobListener );
 		printJob.print(doc, attr );
-		sleep(5000);
+		//sleep(5000);
 
-		dump(printJobListener.getLog());
+		//dump(printJobListener.getLog());
 
 	}
+	
+	private Object function getSimpleDoc(java.lang.Object fis, Object docAttr) type="java" {
+		javax.print.DocFlavor flavor = javax.print.DocFlavor.INPUT_STREAM.AUTOSENSE;
+		//javax.print.SimpleDoc doc = new javax.print.SimpleDoc(fis, flavor, ((javax.print.attribute.DocAttributeSet) docAttr));
+		javax.print.SimpleDoc doc = new javax.print.SimpleDoc(fis, flavor, null);
+		return doc;
+	}
+	/*
+	private Object function _findPrinter(Object attr) type="java" {
+		javax.print.DocFlavor flavor = javax.print.DocFlavor.INPUT_STREAM.AUTOSENSE;
+		return javax.print.PrintServiceLookup.lookupPrintServices( null, ((javax.print.attribute.HashPrintRequestAttributeSet) attr) );
+	}
+	*/
 
 	private function findPrinter( printer, attr ){
 		var flavor = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").AUTOSENSE; // DocFlavor::INPUT_STREAM; // i.e. pdf
-		dump(flavor.toString());
-		// var services = PrintServiceLookup::lookupPrintServices( flavor, attr );
-		var services = PrintServiceLookup::lookupPrintServices( nullvalue(), nullvalue() );
+		//dump(flavor.getMimeType());
+		//dump(attr);
+		//	var services = PrintServiceLookup::lookupPrintServices( flavor, attr ); ///returns nothing???
+		var services = PrintServiceLookup::lookupPrintServices( nullvalue(), attr );
+		//var services = PrintServiceLookup::lookupPrintServices( nullvalue(), nullvalue() );
+		//var services  = _findPrinter( attr );
 		var serviceNames = [];
 		loop array="#services#" item="local.service" {
 			if ( service.getName() eq arguments.printer )
