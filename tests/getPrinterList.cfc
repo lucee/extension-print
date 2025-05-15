@@ -4,13 +4,12 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 
 		describe("getPrinterList", function() {
 
-			it(title="",  body=function() {
+			it(title="enumerate printers",  body=function() {
 				var printers = getPrinterList();
-				// expect( isSimpleValue( printers ) ).toBeTrue();
-				expect(printers).toBeArray();
+				expect( isSimpleValue( printers ) ).toBeTrue();
 				SystemOutput( "", true );
 				SystemOutput( "-------- printers-------", true);
-				ArrayEach( printers, function( printer ){
+				ListEach( printers, function( printer ){
 					SystemOutput(printer, true);
 				});
 

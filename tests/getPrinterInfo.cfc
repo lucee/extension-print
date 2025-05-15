@@ -5,8 +5,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 		describe("getPrinterInfo", function() {
 
 			it( title="enumerate printers and call getPrinterInfo",  body=function() {
-				var printers = getPrinterList();
-				expect( printers ).toBeArray();
+				var printers = ListToArray( getPrinterList() );
 				SystemOutput( "", true );
 				ArrayEach( printers, function( printer ){
 					SystemOutput("-------- printer [ #printer #]-------", true);

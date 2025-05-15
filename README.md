@@ -6,9 +6,9 @@ Provides CFML print tags and functions for Lucee
 
 Basic compatibility with the Adobe implementation (which is broken in ACF 2023 and ACF 2025)
 
-Note: getPrinterList() is returns an array of printers, rather than a list, it's 2025
-
 Initial version just supports local printers
+
+Requires Lucee 6.2.1.122 or newer
 
 # Future Plans
 
@@ -21,7 +21,7 @@ https://javadoc.io/doc/org.jmdns/jmdns/latest/index.html
 
 getPrinterList(network:boolean)
 
-### network
+### Network
 
 - false, returns a list of local printers
 - true, returns an array containing structs detailing the available printers, including, `name`, `url` and `properties`
