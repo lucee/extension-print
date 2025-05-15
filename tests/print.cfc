@@ -4,12 +4,12 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 		variables.missingPrinterName = "not_existing_printer";
 		variables.testPrinterName = "";
 
-		variables.sampleMonofile = getTempFile("", "mono-test","pdf");
+		variables.sampleColorFile = getTempFile("", "color-test","pdf");
 		cfdocument(format="PDF", filename="#sampleColorfile#", overwrite=true){
 			echo("<h1 style='color:red'>Hi from lucee #server.lucee.version#</h1>");
 		}
 
-		variables.sampleColorFile = getTempFile("", "color-test","pdf");
+		variables.sampleMonofile = getTempFile("", "mono-test","pdf");
 		cfdocument(format="PDF", filename="#sampleMonofile#", overwrite=true){
 			echo("<h1>Hi from lucee #server.lucee.version#</h1>");
 		}
