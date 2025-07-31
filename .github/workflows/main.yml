@@ -35,7 +35,7 @@ jobs:
     - name: Install ghostscript cups-pdf
       run: |
         sudo apt-get update 
-        sudo apt-get install -y ghostscript cups-pdf
+        sudo apt-get install -y ghostscript cups cups-pdf cups-bsd
         sudo systemctl start cups
     - name: Build with Ant
       run: ant -noinput -verbose -buildfile build.xml
@@ -61,4 +61,7 @@ jobs:
       env:
         testLabels: print
         testAdditional: ${{ github.workspace }}/tests
-        
+    - name: Find cups output
+      run: |
+        ls -lR ~/PDF
+        ls -lR /var/spool/cups-pdf
