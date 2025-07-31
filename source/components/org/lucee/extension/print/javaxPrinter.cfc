@@ -83,23 +83,45 @@ component {
 	*/
 
 	private function findPrinter( printer, attr ){
+		var foundServiceNames = [];
 		var flavor = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").AUTOSENSE; // DocFlavor::INPUT_STREAM; // i.e. pdf
 		//dump(flavor.getMimeType());
 		//dump(attr);
+
+		// this behaves rather oddly, try the various combinatations of arguments
+		// if the printer is found, it returns it
+
 		var services = PrintServiceLookup::lookupPrintServices( flavor, attr ); ///returns nothing???
-		systemOutput(services, true);
+		var _printer = matchPrinter( arguments.printer, services, foundServiceNames);
+		if ( len(_printer) ) {
+			systemOutput("match via flavor, attr", true);
+			return _printer;
+		}
+
 		var services = PrintServiceLookup::lookupPrintServices( nullvalue(), attr );
-		systemOutput(services, true);
+		_printer = matchPrinter( arguments.printer, services, foundServiceNames);
+		if ( len(_printer) ) {
+			systemOutput("match via null, attr", true);
+			return _printer;
+		}
+
 		var services = PrintServiceLookup::lookupPrintServices( nullvalue(), nullvalue() );
-		systemOutput(services, true);
-		//var services  = _findPrinter( attr );
-		var serviceNames = [];
-		loop array="#services#" item="local.service" {
+		_printer = matchPrinter( arguments.printer, services, foundServiceNames);
+		if ( len(_printer) ) {
+			systemOutput("match via null, null", true);
+			return _printer;
+		}
+
+		throw "Could not find a printer named [#arguments.printer#], available printers are [#foundServiceNames.toList(", ")#]";
+	}
+
+	private function matchPrinter( printer, services, foundServiceNames){
+		loop array="#arguments.services#" item="local.service" {
 			if ( service.getName() eq arguments.printer )
 				return service;
-			arrayappend( serviceNames, service.getName() );
+			arrayAppend( arguments.foundServiceNames, service.getName() );
 		}
-		throw "Could not find a printer named [#arguments.printer#], available printers are [#serviceNames.toList(", ")#]";
+		return "";
 	}
 
 	private function getColor( string color ){
