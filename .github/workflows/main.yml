@@ -32,6 +32,9 @@ jobs:
         key: lucee-downloads-${{ env.luceeVersion }}
         restore-keys: |
           lucee-downloads
+    - name: Install ghostscript cups-pdf
+      run: |
+        sudo apt-get update && sudo apt-get install -y ghostscript cups-pdf
     - name: Build with Ant
       run: ant -noinput -verbose -buildfile build.xml
     - name: Upload Artifact
