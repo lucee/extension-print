@@ -61,7 +61,12 @@ jobs:
       env:
         testLabels: print
         testAdditional: ${{ github.workspace }}/tests
-    - name: Find cups output
+    - name: List cups output
       run: |
         ls -lR ~/PDF
-        ls -lR /var/spool/cups-pdf
+    - name: Upload PDF Artifacts from CUPS
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-output-pdfs
+        path: ~/PDF/*.pdf
+
