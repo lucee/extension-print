@@ -86,9 +86,12 @@ component {
 		var flavor = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").AUTOSENSE; // DocFlavor::INPUT_STREAM; // i.e. pdf
 		//dump(flavor.getMimeType());
 		//dump(attr);
-		//	var services = PrintServiceLookup::lookupPrintServices( flavor, attr ); ///returns nothing???
+		var services = PrintServiceLookup::lookupPrintServices( flavor, attr ); ///returns nothing???
+		systemOutput(services, true);
 		var services = PrintServiceLookup::lookupPrintServices( nullvalue(), attr );
-		//var services = PrintServiceLookup::lookupPrintServices( nullvalue(), nullvalue() );
+		systemOutput(services, true);
+		var services = PrintServiceLookup::lookupPrintServices( nullvalue(), nullvalue() );
+		systemOutput(services, true);
 		//var services  = _findPrinter( attr );
 		var serviceNames = [];
 		loop array="#services#" item="local.service" {
