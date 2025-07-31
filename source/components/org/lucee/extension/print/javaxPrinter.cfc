@@ -94,21 +94,21 @@ component {
 		var services = PrintServiceLookup::lookupPrintServices( flavor, attr ); ///returns nothing???
 		var _printer = matchPrinter( arguments.printer, services, foundServiceNames);
 		if ( len(_printer) ) {
-			systemOutput("match via flavor, attr", true);
+			// systemOutput("match via flavor, attr", true);
 			return _printer;
 		}
 
 		var services = PrintServiceLookup::lookupPrintServices( nullvalue(), attr );
 		_printer = matchPrinter( arguments.printer, services, foundServiceNames);
 		if ( len(_printer) ) {
-			systemOutput("match via null, attr", true);
+			// systemOutput("match via null, attr", true);
 			return _printer;
 		}
-
+		// this is the one which seems to work most often
 		var services = PrintServiceLookup::lookupPrintServices( nullvalue(), nullvalue() );
 		_printer = matchPrinter( arguments.printer, services, foundServiceNames);
 		if ( len(_printer) ) {
-			systemOutput("match via null, null", true);
+			// systemOutput("match via null, null", true);
 			return _printer;
 		}
 
