@@ -2,7 +2,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 
 	function beforeAll(){
 		variables.missingPrinterName = "not_existing_printer";
-		variables.testPrinterName = "";
+		variables.testPrinterName = "PDF";
 
 		variables.sampleColorFile = getTempFile("", "color-test","pdf");
 		cfdocument(format="PDF", filename="#sampleColorfile#", overwrite=true){

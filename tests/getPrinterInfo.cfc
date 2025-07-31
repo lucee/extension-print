@@ -8,7 +8,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 				var printers = ListToArray( getPrinterList() );
 				SystemOutput( "", true );
 				ArrayEach( printers, function( printer ){
-					SystemOutput("-------- printer [ #printer #]-------", true);
+					SystemOutput("-------- printer [#printer#]-------", true);
 
 					var info = getPrinterInfo( printer );
 					expect( info ).toBeStruct();
