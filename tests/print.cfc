@@ -2,7 +2,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 
 	function beforeAll(){
 		variables.missingPrinterName = "not_existing_printer";
-		variables.testPrinterName = "PDF";
+		variables.testPrinterName = "PDF"; // default for CUPS on Github actions  
 
 		variables.sampleColorFile = getTempFile("", "color-test","pdf");
 		cfdocument(format="PDF", filename="#sampleColorfile#", overwrite=true){
@@ -33,7 +33,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 
 			it("should print a mono PDF file without throwing an error", function() {
 				if ( !hasPrinter() ) return;
-				SystemOutput( "printing to [#variables.testPrinterName#]", true );
+				SystemOutput( "mono printing to [#variables.testPrinterName#]", true );
 				cfprint(
 					source = variables.sampleMonofile,
 					printer = variables.testPrinterName,
@@ -45,7 +45,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 
 			it("should print a color PDF file without throwing an error", function() {
 				if ( !hasPrinter() ) return;
-				SystemOutput( "printing to [#variables.testPrinterName#]", true );
+				SystemOutput( "color printing to [#variables.testPrinterName#]", true );
 				cfprint(
 					source = variables.sampleColorfile,
 					printer = variables.testPrinterName,
@@ -57,7 +57,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 
 			it("should print a plain text file without throwing an error", function() {
 				if ( !hasPrinter() ) return;
-				SystemOutput( "printing to [#variables.testPrinterName#]", true );
+				SystemOutput( "plain text printing to [#variables.testPrinterName#]", true );
 				cfprint(
 					source = variables.plainTextFile,
 					printer = variables.testPrinterName,
