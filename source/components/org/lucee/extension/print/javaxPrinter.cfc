@@ -74,10 +74,14 @@ component {
 
 			// the PDFbox raster path handles the paging itself
 			if ( len( arguments.pages ) ){
-				systemOutput("pages: [#arguments.pages#]", true);
-				var _pages = getPages( toString(arguments.pages) );
-				systemOutput(_pages.toString(), true);
-				attr.add( _pages );
+				if ( !isAttributeSupported( PrintService, "PageRanges" ) ){
+					systemOutput("Printer doesn't support page ranges", true);
+				} else {
+					systemOutput("pages: [#arguments.pages#]", true);
+					var _pages = new PageRanges( toString(arguments.pages) );
+					systemOutput(_pages.toString(), true);
+					attr.add( _pages );
+				}
 			}
 
 			// seems for DocFlavor.INPUT_STREAM.AUTOSENSE docAttr isn't supported?
@@ -173,10 +177,6 @@ component {
 			arrayAppend( arguments.foundServiceNames, service.getName() );
 		}
 		return "";
-	}
-
-	private function getPages( string pages ){
-		return new PageRanges( arguments.pages );
 	}
 
 	private function getMedia( string paper ){
