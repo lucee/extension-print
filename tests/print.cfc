@@ -3,7 +3,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 	function beforeAll(){
 		variables.missingPrinterName = "not_existing_printer";
 		variables.testPrinterName = "PDF"; // default for CUPS on Github actions
-		variables.testPrinterName = "Canon TS3100 series";
+		//variables.testPrinterName = "Canon TS3100 series";
 		//variables.testPrinterName = "Microsoft Print to PDF";
 
 		variables.plainTextFile = getTempFile("", "plain-text","txt");

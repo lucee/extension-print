@@ -106,8 +106,6 @@ component {
 			for (var imagePath in images) {
 				var imageFile = new File( imagePath );
 				var imageFis = new FileInputStream( imageFile );
-				// Determine image flavor based on imageFormat argument
-				var imageFlavor = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").PNG;
 				var imageDoc = new SimpleDoc(imageFis, imageFlavor, docAttr);
 				var printJob = PrintService.createPrintJob();
 				printJob.print(imageDoc, attr);
