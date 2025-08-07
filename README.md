@@ -10,6 +10,17 @@ Initial version just supports local printers
 
 Requires Lucee 6.2.1.122 or newer
 
+# Printer Suppport
+
+Not all printers support printing PDF directly, when it's not available, `<cfprint>` will fallback to using Apache PDFBox to render the pages to PNG and print those.
+
+There is a `renderer` attribute, which defaults to `AUTO`
+
+The other options are
+
+- `printer` pass the PDF file directly to the printer to render, if your printer doesn't support that according to java, an error will be thrown
+- `raster` render the PDF using PDFBox and then print the resulting PNG images
+
 # Future Plans
 
 Libaries used
