@@ -73,9 +73,12 @@ component {
 			var fis = new FileInputStream( arguments.source );
 
 			// the PDFbox raster path handles the paging itself
-			if ( len( arguments.pages ) )
-				attr.add( getPages( toString(arguments.pages) ) );
-
+			if ( len( arguments.pages ) ){
+				systemOutput("pages: [#arguments.pages#]", true);
+				var _pages = getPages( toString(arguments.pages) );
+				systemOutput(_pages.toString(), true);
+				attr.add( _pages );
+			}
 
 			// seems for DocFlavor.INPUT_STREAM.AUTOSENSE docAttr isn't supported?
 			// var flavor = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").AUTOSENSE;

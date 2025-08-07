@@ -86,9 +86,9 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 				if ( !hasPrinter() ) return;
 				SystemOutput( "color printing to [#variables.testPrinterName#], render='raster'", true );
 				cfprint(
-					source = getColorPDF("raster page 1"),
+					source = getColorPDF("raster page 2"),
 					printer = variables.testPrinterName,
-					pages = "1",
+					pages = "2",
 					color = true,
 					render = 'raster'
 				);
