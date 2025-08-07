@@ -17,43 +17,38 @@ component {
 	public function print( string printer, string paper){
 		var attr = new HashPrintRequestAttributeSet();
 		var docAttr = new HashDocAttributeSet();
-		
-		if ( len( arguments.copies ) )
-			attr.add(new Copies( int(arguments.copies )) );
 
-		if ( len( arguments.fidelity ) ){
-			attr.add(Fidelity::FIDELITY_TRUE );
-		} else {
-			attr.add(Fidelity::FIDELITY_FALSE );
-		}
-
-		if ( len( arguments.paper ) )
-			attr.add( getMedia( arguments.paper ).get(nullValue()) );
-
-
-		//dumpAttr(var=attr, label="RequestAttr");
-		//dumpAttr(var=docAttr, label="DocAttr");
-		//var services = PrintServiceLookup::lookupPrintServices( flavor, attr );
 		var PrintService = findPrinter( arguments.printer, attr );
 
-		if ( isJobNameSupported( PrintService ) ){
+		if ( isAttributeSupported( PrintService, "JobName" ) ){
 			attr.add(new JobName( listLast(arguments.source, "/\"), Locale::US ));
 		}
 
-		if ( isColorSupported( PrintService ) ){
+		if ( isAttributeSupported( PrintService, "Chromaticity" ) ){
 			if ( len( arguments.color ) )
 				docAttr.add( arguments.color ? Chromaticity::COLOR : Chromaticity::MONOCHROME );
 		}
 
-		var supportedFlavors = PrintService.getSupportedDocFlavors();
-		//echo("<p><b>Supported flavours</b></p>");
-		for (var flavor in supportedFlavors) {
-			//systemOutput(flavor, true);
-			//systemOutput(flavor.getMimeType(), true);
-			//	dump(flavor.getMimeType());
+		if ( isAttributeSupported( PrintService, "Fidelity" ) ){
+			if ( len( arguments.fidelity ) ){
+				attr.add(Fidelity::FIDELITY_TRUE );
+			} else {
+				attr.add(Fidelity::FIDELITY_FALSE );
+			}
+		}
+		
+		if ( isAttributeSupported( PrintService, "Copies" ) ){
+			if ( len( arguments.copies ) && arguments.copies > 1 )
+				attr.add(new Copies( int(arguments.copies )) );
 		}
 
-		//dump(PrintService);
+		if ( isAttributeSupported( PrintService, "MediaSizeName" ) ){
+			if ( len( arguments.paper ) )
+				attr.add( getMedia( arguments.paper ).get(nullValue()) );
+		}
+
+		//dumpAttr(var=attr, label="RequestAttr");
+		//dumpAttr(var=docAttr, label="DocAttr");
 
 		var printJob = PrintService.createPrintJob();
 
@@ -214,14 +209,9 @@ component {
 		return false;
 	}
 
-	public boolean function isJobNameSupported(required printService) {
-		var JobNameClass = createObject("java", "javax.print.attribute.standard.JobName").getClass();
-		return printService.isAttributeCategorySupported(JobNameClass);
-	}
-
-	public boolean function isColorSupported(required printService) {
-		var ChromaticityClass = createObject("java", "javax.print.attribute.standard.Chromaticity").getClass();
-		return printService.isAttributeCategorySupported(ChromaticityClass);
+	public boolean function isAttributeSupported(required printService, clazz) {
+		var clazz = createObject("java", "javax.print.attribute.standard.#arguments.clazz#").getClass();
+		return printService.isAttributeCategorySupported(clazz);
 	}
 
 	function dumpAttr(var, label){
