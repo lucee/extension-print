@@ -16,7 +16,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 			it("should throw an error, printer not found", function(currentSpec) {
 				expect( function(){
 					cfprint(
-						source = variables.sampleMonofile,
+						source = getMonoPDF("404"),
 						printer = variables.missingPrinterName,
 						pages = "1"
 					);
@@ -27,7 +27,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 				if ( !hasPrinter() ) return;
 				SystemOutput( "mono printing to [#variables.testPrinterName#]", true );
 				cfprint(
-					source = getMonoPDF(currentSpec),
+					source = getMonoPDF("page 1"),
 					printer = variables.testPrinterName,
 					pages = "1",
 					color = false
@@ -39,7 +39,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 				if ( !hasPrinter() ) return;
 				SystemOutput( "mono printing to [#variables.testPrinterName#]", true );
 				cfprint(
-					source = getMonoPDF(currentSpec),
+					source = getMonoPDF("page 2"),
 					printer = variables.testPrinterName,
 					pages = "2",
 					color = false
@@ -51,7 +51,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 				if ( !hasPrinter() ) return;
 				SystemOutput( "mono printing to [#variables.testPrinterName#]", true );
 				cfprint(
-					source = getMonoPDF(currentSpec),
+					source = getMonoPDF("page 2-3"),
 					printer = variables.testPrinterName,
 					pages = "2-3",
 					color = false
@@ -63,7 +63,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 				if ( !hasPrinter() ) return;
 				SystemOutput( "mono printing to [#variables.testPrinterName#]", true );
 				cfprint(
-					source = getMonoPDF(currentSpec),
+					source = getMonoPDF("all 3 pages"),
 					printer = variables.testPrinterName,
 					color = false
 				);
@@ -74,7 +74,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 				if ( !hasPrinter() ) return;
 				SystemOutput( "color printing to [#variables.testPrinterName#], render='auto'", true );
 				cfprint(
-					source = getColorPDF(currentSpec),
+					source = getColorPDF("auto page 1"),
 					printer = variables.testPrinterName,
 					pages = "1",
 					color = true
@@ -86,7 +86,7 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 				if ( !hasPrinter() ) return;
 				SystemOutput( "color printing to [#variables.testPrinterName#], render='raster'", true );
 				cfprint(
-					source = getColorPDF(currentSpec),
+					source = getColorPDF("raster page 1"),
 					printer = variables.testPrinterName,
 					pages = "1",
 					color = true,
@@ -100,9 +100,9 @@ component extends="org.lucee.cfml.test.LuceeTestCase" labels="print" {
 				SystemOutput( "color printing to [#variables.testPrinterName#], render='printer'", true );
 				try {
 					cfprint(
-						source = getColorPDF(currentSpec),
+						source = getColorPDF("printer page 2"),
 						printer = variables.testPrinterName,
-						pages = "1",
+						pages = "2",
 						color = true,
 						render = 'printer'
 					);
