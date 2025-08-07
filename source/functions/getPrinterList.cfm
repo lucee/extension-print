@@ -3,9 +3,9 @@
 	* Returns a list of local printers
 	*/
 	public string function getPrinterList(){
-		var _printers = new org.lucee.extension.print.javaxPrintServices().list();
 		var printers = [];
-		for ( var p in _printers ){
+		var localPrinters = new org.lucee.extension.print.javaxPrintServices().list();
+		for ( var p in localPrinters ){
 			arrayAppend( printers, p.getName() );
 		}
 		return printers.toList();

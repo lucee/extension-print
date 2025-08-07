@@ -1,4 +1,5 @@
 component {
+	import java.io.File;
 	import java.io.FileInputStream;
 	import javax.print.attribute.HashPrintRequestAttributeSet;
 	import javax.print.attribute.HashDocAttributeSet;
@@ -21,58 +22,105 @@ component {
 			docAttr.add( arguments.color ? Chromaticity::COLOR : Chromaticity::MONOCHROME );
 		if ( len( arguments.copies ) )
 			attr.add(new Copies( int(arguments.copies )) );
-	
-		/*
+
 		if ( len( arguments.fidelity ) ){
 			attr.add(Fidelity::FIDELITY_TRUE );
 		} else {
 			attr.add(Fidelity::FIDELITY_FALSE );
 		}
-		*/
-			
-		if ( len( arguments.pages ) )
-			attr.add( getPages( toString(arguments.pages) ) );
+
 		if ( len( arguments.paper ) )
 			attr.add( getMedia( arguments.paper ).get(nullValue()) );
-		
 
-		dumpAttr(var=attr, label="RequestAttr");
-		dumpAttr(var=docAttr, label="DocAttr");
+
+		//dumpAttr(var=attr, label="RequestAttr");
+		//dumpAttr(var=docAttr, label="DocAttr");
 		//var services = PrintServiceLookup::lookupPrintServices( flavor, attr );
 		var PrintService = findPrinter( arguments.printer, attr );
-		/*
-		supportedFlavors = PrintService.getSupportedDocFlavors();
-		echo("<p><b>Supported flavours</b></p>");
-		for (flavor in supportedFlavors) {
-			dump(flavor.getMimeType());
+
+		var supportedFlavors = PrintService.getSupportedDocFlavors();
+		//echo("<p><b>Supported flavours</b></p>");
+		for (var flavor in supportedFlavors) {
+			//systemOutput(flavor, true);
+			//systemOutput(flavor.getMimeType(), true);
+			//	dump(flavor.getMimeType());
 		}
-		*/
+
 		//dump(PrintService);
 
 		var printJob = PrintService.createPrintJob();
-		var fis = new FileInputStream( arguments.source );
-		
-		// seems for DocFlavor.INPUT_STREAM.AUTOSENSE docAttr isn't supported?
-		// var flavor = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").AUTOSENSE;
-		//var doc = new SimpleDoc( fis, flavor, docAttr );
-		//var doc = new SimpleDoc( fis, flavor, nullValue() ); // LDEV-5608
-		var doc = getSimpleDoc(fis, docAttr);
-		
-		//dump(doc);
-		//dump(printJob);
-		//var printJobListener = new javaxPrintJobListener( logger, getPageContext() );
-		//printjob.addPrintJobListener( printJobListener );
-		printJob.print(doc, attr );
-		//sleep(5000);
 
-		//dump(printJobListener.getLog());
+		// INPUT_STREAM.AUTOSENSE is unreliable
+		var printerSupportsPDF = isPdfSupported(PrintService);
+
+		if ( arguments.render == "printer" && !printerSupportsPDF){
+			throw "Printer does not report supporting printing PDF documents directly, try using render='raster|auto'";
+		}
+
+		var renders = {
+			"AUTO": "Decide automatically based on capabilties",
+			"RASTER": "Render PDF to PNG using PDFBOX and print PNG",
+			"PRINTER": "Pass PDF directly to printer"
+		};
+
+		if (! structKeyExists(renders, arguments.render) )
+			throw "Invalid [render] attribute [#arguments.render#], available render types are [#structKeyList(renders, ", ")#";
+
+		if ( arguments.render != "raster" && printerSupportsPDF ) {
+
+			var fis = new FileInputStream( arguments.source );
+
+			// the PDFbox raster path handles the paging itself
+			if ( len( arguments.pages ) )
+				attr.add( getPages( toString(arguments.pages) ) );
+
+
+			// seems for DocFlavor.INPUT_STREAM.AUTOSENSE docAttr isn't supported?
+			// var flavor = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").AUTOSENSE;
+			//var doc = new SimpleDoc( fis, flavor, docAttr );
+			//var doc = new SimpleDoc( fis, flavor, nullValue() ); // LDEV-5608
+			var doc = getSimpleDoc(fis, docAttr);
+
+			//dump(doc);
+			//dump(printJob);
+			var printJobListener = new javaxPrintJobListener( logger, getPageContext() );
+			//printjob.addPrintJobListener( printJobListener );
+			printJob.print(doc, attr );
+			//sleep(5000);
+
+			//systemOutput(printJobListener.getLog(), true);
+		} else {
+			// print to png using pdf box
+			var pdfToImage = new pdfboxRenderer();
+			var tempPrintImages = getTempDirectory(true);
+			var images = pdfToImage.convert(pdfPath=arguments.source,
+				outputDir=tempPrintImages,
+				imageFormat="png",
+				dpi=300,
+				pageRange=toString(arguments.pages),
+				color=arguments.color );
+			var printJob = PrintService.createPrintJob();
+			var imageFlavor = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").PNG;
+			for (var imagePath in images) {
+				var imageFile = new File( imagePath );
+				var imageFis = new FileInputStream( imageFile );
+				// Determine image flavor based on imageFormat argument
+				var imageFlavor = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").PNG;
+				var imageDoc = new SimpleDoc(imageFis, imageFlavor, docAttr);
+				var printJob = PrintService.createPrintJob();
+				printJob.print(imageDoc, attr);
+				imageFis.close();
+				imageFile.delete();
+			}
+			directoryDelete(tempPrintImages);
+		}
 
 	}
-	
+
 	private Object function getSimpleDoc(java.lang.Object fis, Object docAttr) type="java" {
-		javax.print.DocFlavor flavor = javax.print.DocFlavor.INPUT_STREAM.AUTOSENSE;
-		//javax.print.SimpleDoc doc = new javax.print.SimpleDoc(fis, flavor, ((javax.print.attribute.DocAttributeSet) docAttr));
-		javax.print.SimpleDoc doc = new javax.print.SimpleDoc(fis, flavor, null);
+		javax.print.DocFlavor flavor = javax.print.DocFlavor.INPUT_STREAM.PDF;
+		javax.print.SimpleDoc doc = new javax.print.SimpleDoc(fis, flavor, ((javax.print.attribute.DocAttributeSet) docAttr));
+		//javax.print.SimpleDoc doc = new javax.print.SimpleDoc(fis, flavor, null);
 		return doc;
 	}
 	/*
@@ -84,7 +132,7 @@ component {
 
 	private function findPrinter( printer, attr ){
 		var foundServiceNames = [];
-		var flavor = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").AUTOSENSE; // DocFlavor::INPUT_STREAM; // i.e. pdf
+		var flavor = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").PDF; // DocFlavor::INPUT_STREAM; // i.e. pdf
 		//dump(flavor.getMimeType());
 		//dump(attr);
 
@@ -115,17 +163,13 @@ component {
 		throw "Could not find a printer named [#arguments.printer#], available printers are [#foundServiceNames.toList(", ")#]";
 	}
 
-	private function matchPrinter( printer, services, foundServiceNames){
-		loop array="#arguments.services#" item="local.service" {
+	private function matchPrinter( required string printer, array services, array foundServiceNames){
+		loop array="#services#" item="local.service" {
 			if ( service.getName() eq arguments.printer )
 				return service;
 			arrayAppend( arguments.foundServiceNames, service.getName() );
 		}
 		return "";
-	}
-
-	private function getColor( string color ){
-		return new Chromaticity(  );
 	}
 
 	private function getPages( string pages ){
@@ -151,11 +195,29 @@ component {
 		throw "Unsupported paper type [#arguments.paper#], available types are [#structKeyList(st, ", ")#]";
 	}
 
+	public boolean function isPdfSupported(required printService) {
+		var docFlavorPdf = createObject("java", "javax.print.DocFlavor$INPUT_STREAM").PDF;
+		var supportedFlavors = arguments.printService.getSupportedDocFlavors();
+
+		for (var flavor in supportedFlavors) {
+			if (flavor.getMimeType() == docFlavorPdf.getMimeType()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	function dumpAttr(var, label){
 		echo("<p><b>#label# Attributes </b></p>");
-		var attr = var.toArray()
-		for (var a in attr)
+		var attr = var.toArray();
+		throw "zac";
+		systemOutput("....#label#....", true);
+		for (var a in attr){
+			systemOutput(a.getName() & ": " & a.toString(), true);
 			dump(var=a.getName() & ": " & a.toString(), label=label);
+		}
+		systemOutput("", true);
+
 	}
 
 	private void function logger(pc, type, mess, event){
