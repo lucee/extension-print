@@ -51,6 +51,12 @@ component name="lucee print tag" {
 			default: "",
 			hint: "Type of paper to print"
 		},
+		"render": {
+			required: false,
+			type: "string",
+			default: "auto",
+			hint: "PDF renderer to use, not all printers support directly printing PDFs, [AUTO, PRINTER, RASTER]. Default is AUTO, RASTER uses PDFBOX to render PNGs to print"
+		}
 	];
 	/**
 	* Invoked after tag is constructed
