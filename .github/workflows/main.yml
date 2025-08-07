@@ -69,4 +69,12 @@ jobs:
       with:
         name: test-output-pdfs
         path: ~/PDF/*.pdf
+    - name: Dump CUPS logs for debugging
+      run: |
+        echo "--- Dumping CUPS Error Log ---"
+        sudo cat /var/log/cups/error_log
+        echo "--- Dumping CUPS Access Log ---"
+        sudo cat /var/log/cups/access_log
+        echo "--- Dumping CUPS Page Log ---"
+        sudo cat /var/log/cups/page_log
 
