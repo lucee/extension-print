@@ -71,10 +71,18 @@ jobs:
         path: ~/PDF/*.pdf
     - name: Dump CUPS logs for debugging
       run: |
-        echo "--- Dumping CUPS Error Log ---"
-        sudo cat /var/log/cups/error_log
-        echo "--- Dumping CUPS Access Log ---"
-        sudo cat /var/log/cups/access_log
-        echo "--- Dumping CUPS Page Log ---"
-        sudo cat /var/log/cups/page_log
+        echo "--- Attempting to dump CUPS logs from /var/log/cups/ ---"
+        if [ -f /var/log/cups/error_log ]; then
+          echo "Found traditional CUPS log files."
+          echo "--- Dumping CUPS Error Log ---"
+          sudo cat /var/log/cups/error_log
+          echo "--- Dumping CUPS Access Log ---"
+          sudo cat /var/log/cups/access_log
+          echo "--- Dumping CUPS Page Log ---"
+          sudo cat /var/log/cups/page_log
+        else
+          echo "Traditional CUPS log files not found. Falling back to systemd journal."
+          echo "--- Dumping CUPS logs from systemd journal ---"
+          journalctl -u cups.service --no-pager
+        fi
 
