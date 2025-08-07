@@ -59,11 +59,6 @@ component accessors="true" javaSettings='{
 			var document = Loader::loadPDF(pdfFile);
 			var pdfRenderer = new PDFRenderer(document);
 			var numberOfPages = document.getNumberOfPages();
-			
-			systemOutput("", true);
-			systemOutput("pageRange: #arguments.pageRange#", true);
-			systemOutput("numberOfPages: #numberOfPages#", true);
-
 			var pagesToProcess = [];
 			if (len(arguments.pageRange)) {
 				pagesToProcess = getPagesToProcess(arguments.pageRange, numberOfPages);
@@ -72,12 +67,8 @@ component accessors="true" javaSettings='{
 					arrayAppend(pagesToProcess, i);
 				}
 			}
-			systemOutput("pagesToProcess: #pagesToProcess.toJson()#", true);
 
 			var imageType = arguments.color ? ImageType::RGB : ImageType::GRAY;
-			systemOutput("color: #arguments.color#", true);
-			systemOutput(imageType, true);
-
 
 			for (var pageNumber in pagesToProcess) {
 				// Pages in PDFBox are zero-indexed, so subtract 1

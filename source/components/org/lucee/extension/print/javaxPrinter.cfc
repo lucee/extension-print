@@ -16,7 +16,6 @@ component {
 
 	public function print( string printer, string paper){
 		var attr = new HashPrintRequestAttributeSet();
-		attr.add(new JobName( listLast(arguments.source, "/\"), Locale::US ));
 		var docAttr = new HashDocAttributeSet();
 		if ( len( arguments.color ) )
 			docAttr.add( arguments.color ? Chromaticity::COLOR : Chromaticity::MONOCHROME );
@@ -37,6 +36,10 @@ component {
 		//dumpAttr(var=docAttr, label="DocAttr");
 		//var services = PrintServiceLookup::lookupPrintServices( flavor, attr );
 		var PrintService = findPrinter( arguments.printer, attr );
+
+		if ( isJobNameSupported( PrintService ) ){
+			attr.add(new JobName( listLast(arguments.source, "/\"), Locale::US ));
+		}
 
 		var supportedFlavors = PrintService.getSupportedDocFlavors();
 		//echo("<p><b>Supported flavours</b></p>");
@@ -205,6 +208,11 @@ component {
 			}
 		}
 		return false;
+	}
+
+	public boolean function isJobNameSupported(required printService) {
+		var JobNameClass = createObject("java", "javax.print.attribute.standard.JobName").getClass();
+		return printService.isAttributeCategorySupported(JobNameClass);
 	}
 
 	function dumpAttr(var, label){
