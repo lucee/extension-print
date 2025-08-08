@@ -10,7 +10,7 @@ Initial version just supports local printers
 
 Requires Lucee 6.2.1.122 or newer
 
-# Printer Suppport
+# Printer Support
 
 Not all printers support printing PDF directly, when it's not available, `<cfprint>` will fallback to using Apache PDFBox to render the pages to PNG and print those.
 
